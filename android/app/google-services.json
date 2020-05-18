@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "511237268254",
+    "firebase_url": "https://mywheater-8a2fe.firebaseio.com",
+    "project_id": "mywheater-8a2fe",
+    "storage_bucket": "mywheater-8a2fe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:511237268254:android:61f9b5630a8fc5a5f41f0f",
+        "android_client_info": {
+          "package_name": "com.example.app_demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "511237268254-hgbck2438fiii9jdsf4pr53lu426cqmq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXiZA-Z7eduP64TDx94ueUfZgg07qTsac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "511237268254-hgbck2438fiii9jdsf4pr53lu426cqmq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
