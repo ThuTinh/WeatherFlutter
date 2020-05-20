@@ -24,7 +24,7 @@ class ListItemHourly extends StatelessWidget {
           //   color: Hexcolor("#757575"),
           //   size: 30.0,
           // ),
-          Image.network('http://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png'),
+          Image.network('http://openweathermap.org/img/wn/${weather != null?weather.weather[0].icon:'04n'}@2x.png'),
           Row(
             children: <Widget>[
               BoxedIcon(

@@ -19,7 +19,7 @@ class ListItemDaily extends StatelessWidget {
         children: <Widget>[
           Text('${weather.dtTxt.day}/${weather.dtTxt.month}'),
           Image.network(
-              'http://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png'),
+              'http://openweathermap.org/img/wn/${ weather != null ?weather.weather[0].icon: "04n"}@2x.png'),
           Row(
             children: <Widget>[
               BoxedIcon(
