@@ -1,8 +1,11 @@
 import 'package:app_demo/model/reponseWeather.dart';
+import 'package:app_demo/screens/wiget/listItemDaily.dart';
+import 'package:app_demo/screens/wiget/listItemHourly.dart';
 import 'package:flutter/material.dart';
 import '../services/weatherService.dart';
 import 'package:weather_icons/weather_icons.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:app_demo/model/weather.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -10,20 +13,59 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  WeatherService service = WeatherService();
-  ReponseWeather reponseWeather;
-  @override
-  void initState() {
-    super.initState();
-    service.getWeatherByNameCity("demo").then((reponse){
-      print("init data" + reponse.toString());
-      reponseWeather = reponse;
+  ReponseWeather reponseWeather = new ReponseWeather();
+  Weather weather = new Weather();
+  List<Weather> lsCurentWeather = new List();
+  List<Weather> lsWeatherFor5Day = new List();
+
+  Future<void> getData() async {
+    WeatherService service = WeatherService();
+    List<Weather> curentWeathers = new List();
+    List<Weather> weatherFor5Days = new List();
+    Weather tempWeather = new Weather();
+    ReponseWeather tempReponseWeather;
+    tempReponseWeather = await service.getWeatherByNameCity("demo");
+    for (var i = 0; i < tempReponseWeather.list.length; i++) {
+      if (tempReponseWeather.list[i].dtTxt.day == DateTime.now().day) {
+        curentWeathers.add(tempReponseWeather.list[i]);
+        if (i < tempReponseWeather.list.length - 1) {
+          if (tempReponseWeather.list[i].dtTxt.hour <= DateTime.now().hour &&
+              tempReponseWeather.list[i + 1].dtTxt.hour > DateTime.now().hour) {
+                tempWeather = tempReponseWeather.list[i];
+          }
+        } else {
+          if(weather == null) {
+              tempWeather = tempReponseWeather.list[tempReponseWeather.list.length - 1];
+          }
+        }
+      } else {
+        weatherFor5Days.add(tempReponseWeather.list[i]);
+      }
+    }
+    // for (var item in tempReponseWeather.list) {
+    //   if (item.dtTxt.day == DateTime.now().day) {
+    //     curentWeathers.add(item);
+
+    //   } else {
+    //     weatherFor5Days.add(item);
+    //   }
+    // }
+    setState(() {
+      this.reponseWeather = tempReponseWeather;
+      this.lsCurentWeather = curentWeathers;
+      this.lsWeatherFor5Day = weatherFor5Days;
+      this.weather = tempWeather;
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    print("Data ne"+ reponseWeather.city.toString());
     return Scaffold(
       appBar: AppBar(
           title: Text(
@@ -47,18 +89,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: <Widget>[
                         Container(
                           margin: const EdgeInsets.all(10),
-                          child: Text('Ho Chi Minh',
+                          child: Text('${this.reponseWeather?.city?.name}',
                               style: TextStyle(
                                   color: Colors.white, fontSize: 25.0)),
                         ),
 
                         RichText(
                             text: TextSpan(
-                                text: '8 Jun 28 ',
+                                text: '  ${weather?.dtTxt?.year} /${weather?.dtTxt?.month}/ ${weather?.dtTxt?.day}',
                                 style: TextStyle(fontSize: 13.0),
                                 children: [
                               TextSpan(
-                                text: " 10:00 AM",
+                                text: ' ${DateTime.now().hour}: ${DateTime.now().minute}',
                               ),
                             ])),
                         SizedBox(
@@ -67,19 +109,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            BoxedIcon(
-                              WeatherIcons.day_cloudy,
-                              size: 60.0,
-                              color: Hexcolor("#FFD600"),
-                            ),
+                            // BoxedIcon(
+                            //   WeatherIcons.day_cloudy,
+                            //   size: 60.0,
+                            //   color: Hexcolor("#FFD600"),
+                            // ),
+                            Image.network('http://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png'),
                             RichText(
                                 text: TextSpan(
-                                    text: "33",
+                                    text: '${  weather != null?(weather.main.temp -273).toStringAsFixed(1):0}',
                                     style: TextStyle(fontSize: 50.0),
                                     children: [
                                   TextSpan(
                                       text: "°",
-                                      style: TextStyle(fontSize: 30.0)),
+                                      style: TextStyle(fontSize: 50.0)),
                                 ])),
                           ],
                         ),
@@ -88,19 +131,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         RichText(
                             text: TextSpan(
-                                text: "35",
+                                text: '${  weather != null?(weather.main.tempMax -273).toStringAsFixed(1):0}',
                                 style: TextStyle(fontSize: 14.0),
                                 children: [
                               TextSpan(
                                 text: "°",
                               ),
                               TextSpan(text: "/"),
-                              TextSpan(text: "27"),
+                              TextSpan(text: '${  weather != null?(weather.main.tempMin -273).toStringAsFixed(1): 0}'),
                               TextSpan(
                                 text: "°",
                               ),
                               TextSpan(text: " feel like "),
-                              TextSpan(text: "27"),
+                              TextSpan(text: '${ weather != null?(weather.main.feelsLike -273).toStringAsFixed(1): 0}'),
                               TextSpan(
                                 text: "°",
                               ),
@@ -108,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         // SizedBox(
                         //   height: 8.0,
                         // ),
-                        Text("broken clouds",
+                        Text('${ weather!= null ?weather.weather[0].description : ""}',
                             style:
                                 TextStyle(color: Colors.white, fontSize: 15.0)),
                       ],
@@ -146,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         "Humidity",
                                         style: TextStyle(fontSize: 18),
                                       ),
-                                      Text("90%",
+                                      Text('${weather.main.humidity} %',
                                           style: TextStyle(fontSize: 18))
                                     ],
                                   ),
@@ -177,14 +220,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               Row(
                                 children: <Widget>[
                                   BoxedIcon(
-                                    WeatherIcons.humidity,
+                                    WeatherIcons.barometer,
                                     size: 18.0,
                                   ),
                                   Column(
                                     children: <Widget>[
                                       Text("pressure",
                                           style: TextStyle(fontSize: 18)),
-                                      Text("90%",
+                                      Text('${weather.main.pressure} hpa',
                                           style: TextStyle(fontSize: 18))
                                     ],
                                   ),
@@ -206,583 +249,39 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   // Hang gio
                   Container(
-                    height: 150.0,
-                    child: ListView(
+                    height: 250.0,
+                    child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      children: <Widget>[
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: Column(
-                            children: <Widget>[
-                              Text("11h"),
-                              BoxedIcon(
-                                WeatherIcons.rain_mix,
-                                color: Hexcolor("#757575"),
-                                size: 30.0,
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  BoxedIcon(
-                                    WeatherIcons.humidity,
-                                    size: 13.0,
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  RichText(
-                                      text: TextSpan(
-                                          text: "13",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                          ),
-                                          children: [TextSpan(text: "%")]))
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              RichText(
-                                  text: TextSpan(
-                                      text: "30",
-                                      style: TextStyle(
-                                          fontSize: 18.0, color: Colors.white),
-                                      children: [
-                                    TextSpan(text: "°"),
-                                  ]))
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: Column(
-                            children: <Widget>[
-                              Text("11h"),
-                              BoxedIcon(
-                                WeatherIcons.rain_mix,
-                                color: Hexcolor("#757575"),
-                                size: 30.0,
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  BoxedIcon(
-                                    WeatherIcons.humidity,
-                                    size: 13.0,
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  RichText(
-                                      text: TextSpan(
-                                          text: "13",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                          ),
-                                          children: [TextSpan(text: "%")]))
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              RichText(
-                                  text: TextSpan(
-                                      text: "30",
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                      ),
-                                      children: [
-                                    TextSpan(text: "°"),
-                                  ]))
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: Column(
-                            children: <Widget>[
-                              Text("11h"),
-                              BoxedIcon(
-                                WeatherIcons.rain_mix,
-                                color: Hexcolor("#757575"),
-                                size: 30.0,
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  BoxedIcon(
-                                    WeatherIcons.humidity,
-                                    size: 13.0,
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  RichText(
-                                      text: TextSpan(
-                                          text: "13",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                          ),
-                                          children: [TextSpan(text: "%")]))
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              RichText(
-                                  text: TextSpan(
-                                      text: "30",
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                      ),
-                                      children: [
-                                    TextSpan(text: "°"),
-                                  ]))
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: Column(
-                            children: <Widget>[
-                              Text("11h"),
-                              BoxedIcon(
-                                WeatherIcons.rain_mix,
-                                color: Hexcolor("#757575"),
-                                size: 30.0,
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  BoxedIcon(
-                                    WeatherIcons.humidity,
-                                    size: 13.0,
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  RichText(
-                                      text: TextSpan(
-                                          text: "13",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                          ),
-                                          children: [TextSpan(text: "%")]))
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              RichText(
-                                  text: TextSpan(
-                                      text: "30",
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                      ),
-                                      children: [
-                                    TextSpan(text: "°"),
-                                  ]))
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: Column(
-                            children: <Widget>[
-                              Text("11h"),
-                              BoxedIcon(
-                                WeatherIcons.rain_mix,
-                                color: Hexcolor("#757575"),
-                                size: 30.0,
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  BoxedIcon(
-                                    WeatherIcons.humidity,
-                                    size: 13.0,
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  RichText(
-                                      text: TextSpan(
-                                          text: "13",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                          ),
-                                          children: [TextSpan(text: "%")]))
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              RichText(
-                                  text: TextSpan(
-                                      text: "30",
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                      ),
-                                      children: [
-                                    TextSpan(text: "°"),
-                                  ]))
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: Column(
-                            children: <Widget>[
-                              Text("11h"),
-                              BoxedIcon(
-                                WeatherIcons.rain_mix,
-                                color: Hexcolor("#757575"),
-                                size: 30.0,
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  BoxedIcon(
-                                    WeatherIcons.humidity,
-                                    size: 13.0,
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  RichText(
-                                      text: TextSpan(
-                                          text: "13",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                          ),
-                                          children: [TextSpan(text: "%")]))
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              RichText(
-                                  text: TextSpan(
-                                      text: "30",
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                      ),
-                                      children: [
-                                    TextSpan(text: "°"),
-                                  ]))
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: Column(
-                            children: <Widget>[
-                              Text("11h"),
-                              BoxedIcon(
-                                WeatherIcons.rain_mix,
-                                color: Hexcolor("#757575"),
-                                size: 30.0,
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  BoxedIcon(
-                                    WeatherIcons.humidity,
-                                    size: 13.0,
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  RichText(
-                                      text: TextSpan(
-                                          text: "13",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                          ),
-                                          children: [TextSpan(text: "%")]))
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              RichText(
-                                  text: TextSpan(
-                                      text: "30",
-                                      style: TextStyle(
-                                          fontSize: 18.0, color: Colors.white),
-                                      children: [
-                                    TextSpan(text: "°"),
-                                  ]))
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: Column(
-                            children: <Widget>[
-                              Text("11h"),
-                              BoxedIcon(
-                                WeatherIcons.rain_mix,
-                                color: Hexcolor("#757575"),
-                                size: 30.0,
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  BoxedIcon(
-                                    WeatherIcons.humidity,
-                                    size: 13.0,
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  RichText(
-                                      text: TextSpan(
-                                          text: "13",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                          ),
-                                          children: [TextSpan(text: "%")]))
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              RichText(
-                                  text: TextSpan(
-                                      text: "30",
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                      ),
-                                      children: [
-                                    TextSpan(text: "°"),
-                                  ]))
-                            ],
-                          ),
-                        ),
-                      ],
+                      itemCount: this.lsCurentWeather == null
+                          ? 0
+                          : this.lsCurentWeather.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return ListItemHourly(
+                            weather: this.lsCurentWeather[index]);
+                      },
                     ),
                   ),
-
                   Row(
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.all(20),
-                        child: Text("Hang ngay"),
+                        child: Text("Daily"),
                       )
                     ],
                   ),
-                  //hang ngay
+
                   Container(
-                    height: 150.0,
-                    child: ListView(
+                    height: 250.0,
+                    child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      children: <Widget>[
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            children: <Widget>[
-                              Text("11h"),
-                              BoxedIcon(
-                                WeatherIcons.rain_mix,
-                                color: Hexcolor("#757575"),
-                                size: 30.0,
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  BoxedIcon(
-                                    WeatherIcons.humidity,
-                                    size: 13.0,
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  RichText(
-                                      text: TextSpan(
-                                          text: "13",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                          ),
-                                          children: [TextSpan(text: "%")]))
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              RichText(
-                                  text: TextSpan(
-                                      text: "30",
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                      ),
-                                      children: [
-                                    TextSpan(text: "°"),
-                                  ]))
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            children: <Widget>[
-                              Text("11h"),
-                              BoxedIcon(
-                                WeatherIcons.rain_mix,
-                                color: Hexcolor("#757575"),
-                                size: 30.0,
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  BoxedIcon(
-                                    WeatherIcons.humidity,
-                                    size: 13.0,
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  RichText(
-                                      text: TextSpan(
-                                          text: "13",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                          ),
-                                          children: [TextSpan(text: "%")]))
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              RichText(
-                                  text: TextSpan(
-                                      text: "30",
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                      ),
-                                      children: [
-                                    TextSpan(text: "°"),
-                                  ]))
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            children: <Widget>[
-                              Text("11h"),
-                              BoxedIcon(
-                                WeatherIcons.rain_mix,
-                                color: Hexcolor("#757575"),
-                                size: 30.0,
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  BoxedIcon(
-                                    WeatherIcons.humidity,
-                                    size: 13.0,
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  RichText(
-                                      text: TextSpan(
-                                          text: "13",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                          ),
-                                          children: [TextSpan(text: "%")]))
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              RichText(
-                                  text: TextSpan(
-                                      text: "30",
-                                      style: TextStyle(
-                                          fontSize: 18.0, color: Colors.white),
-                                      children: [
-                                    TextSpan(text: "°"),
-                                  ]))
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            children: <Widget>[
-                              Text("11h"),
-                              BoxedIcon(
-                                WeatherIcons.rain_mix,
-                                color: Hexcolor("#757575"),
-                                size: 30.0,
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  BoxedIcon(
-                                    WeatherIcons.humidity,
-                                    size: 13.0,
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  RichText(
-                                      text: TextSpan(
-                                          text: "13",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                          ),
-                                          children: [TextSpan(text: "%")]))
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              RichText(
-                                  text: TextSpan(
-                                      text: "30",
-                                      style: TextStyle(
-                                          fontSize: 18.0, color: Colors.white),
-                                      children: [
-                                    TextSpan(text: "°"),
-                                  ]))
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            children: <Widget>[
-                              Text("11h"),
-                              BoxedIcon(
-                                WeatherIcons.rain_mix,
-                                color: Hexcolor("#757575"),
-                                size: 30.0,
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  BoxedIcon(
-                                    WeatherIcons.humidity,
-                                    size: 13.0,
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  RichText(
-                                      text: TextSpan(
-                                          text: "13",
-                                          style: TextStyle(
-                                            fontSize: 13.0,
-                                          ),
-                                          children: [TextSpan(text: "%")]))
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              RichText(
-                                  text: TextSpan(
-                                      text: "30",
-                                      style: TextStyle(
-                                          fontSize: 18.0, color: Colors.white),
-                                      children: [
-                                    TextSpan(text: "°"),
-                                  ]))
-                            ],
-                          ),
-                        ),
-                      ],
+                      itemCount: this.lsWeatherFor5Day == null
+                          ? 0
+                          : (this.lsWeatherFor5Day.length / 8.0).ceil(),
+                      itemBuilder: (BuildContext context, int index) {
+                      
+                        return ListItemDaily(
+                            weather: this.lsWeatherFor5Day[index*8]);
+                      },
                     ),
                   ),
 
@@ -791,33 +290,29 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.all(20),
-                        child: Text("Chi tiet"),
+                        child: Text("Detail"),
                       ),
                     ],
                   ),
                   Container(
                     height: 300.0,
+                    padding: const EdgeInsets.all(10),
                     child: ListView(
                       children: <Widget>[
                         ListTile(
-                          title: Text("Chi so UV"),
-                          leading: BoxedIcon(WeatherIcons.raindrop),
-                          trailing: Text("Rat cao"),
+                          title: Text("lat"),
+                          // leading: BoxedIcon(WeatherIcons.raindrop),
+                          trailing: Text('${reponseWeather.city.coord.lat}'),
                         ),
                         ListTile(
-                          title: Text("Chi so UV"),
-                          leading: BoxedIcon(WeatherIcons.raindrop),
-                          trailing: Text("Rat cao"),
+                          title: Text("lon"),
+                          // leading: BoxedIcon(WeatherIcons.raindrop),
+                          trailing: Text('${reponseWeather.city.coord.lon}'),
                         ),
                         ListTile(
-                          title: Text("Chi so UV"),
-                          leading: BoxedIcon(WeatherIcons.raindrop),
-                          trailing: Text("Rat cao"),
-                        ),
-                        ListTile(
-                          title: Text("Chi so UV"),
-                          leading: BoxedIcon(WeatherIcons.raindrop),
-                          trailing: Text("Rat cao"),
+                          title: Text("population"),
+                          // leading: BoxedIcon(WeatherIcons.raindrop),
+                          trailing: Text('${reponseWeather.city.population}'),
                         ),
                       ],
                     ),
@@ -847,9 +342,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
                 leading:
-                    BoxedIcon(WeatherIcons.night_alt_hail, color: Colors.black),
+                    Icon(Icons.add, color: Colors.black),
                 title: Text(
-                  "Home",
+                  "Add location",
                   style: TextStyle(color: Colors.black),
                 ),
                 onTap: () {

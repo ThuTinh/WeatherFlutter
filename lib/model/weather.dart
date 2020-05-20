@@ -11,7 +11,7 @@ class Weather {
   Clouds clouds;
   Wind wind;
   Sys sys;
-  String dtTxt;
+  DateTime dtTxt;
 
   Weather(
       {this.dt,
@@ -29,7 +29,7 @@ class Weather {
         clouds: Clouds.fromJson(json["clouds"]),
         wind: Wind.fromJson(json["wind"]),
         sys: Sys.fromJson(json["sys"]),
-        dtTxt: json["dt_txt"],
+        dtTxt:  DateTime.parse(json["dt_txt"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -39,6 +39,6 @@ class Weather {
         "clouds": clouds.toJson(),
         "wind": wind.toJson(),
         "sys" : sys.toString(),
-        "dt_txt": dtTxt
+        "dt_txt": dtTxt.toString()
       };
 }
