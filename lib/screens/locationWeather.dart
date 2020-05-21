@@ -50,7 +50,6 @@ class LocationState extends State<LocationWeather> {
                   RaisedButton(
                       child: Text("View Weather"),
                       onPressed: () {
-                        print("losaaa"+myController.text );
                         Navigator.pop(context, myController.text);
                       })
                 ],
