@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:weather_icons/weather_icons.dart';
 
 import 'package:app_demo/model/weather.dart';
 
 class ListItemHourly extends StatelessWidget {
- final Weather weather ;
+  final Weather weather;
 
   const ListItemHourly({
     Key key,
@@ -19,12 +18,8 @@ class ListItemHourly extends StatelessWidget {
       child: Column(
         children: <Widget>[
           Text('${weather.dtTxt.hour} : ${weather.dtTxt.minute}'),
-          // BoxedIcon(
-          //   WeatherIcons.rain_mix,
-          //   color: Hexcolor("#757575"),
-          //   size: 30.0,
-          // ),
-          Image.network('http://openweathermap.org/img/wn/${weather != null?weather.weather[0].icon:'04n'}@2x.png'),
+          Image.network(
+              'http://openweathermap.org/img/wn/${weather != null ? weather.weather[0].icon : '04n'}@2x.png'),
           Row(
             children: <Widget>[
               BoxedIcon(
@@ -36,7 +31,8 @@ class ListItemHourly extends StatelessWidget {
               ),
               RichText(
                   text: TextSpan(
-                      text: '${weather.main.humidity}',
+                      text:
+                          '${weather.main.humidity != null ? weather.main.humidity : ""}',
                       style: TextStyle(
                         fontSize: 13.0,
                       ),
@@ -48,7 +44,8 @@ class ListItemHourly extends StatelessWidget {
           ),
           RichText(
               text: TextSpan(
-                  text: '${  weather != null?(weather.main.temp -273).toStringAsFixed(1):0}',
+                  text:
+                      '${weather != null ? (weather.main.temp - 273.15).toStringAsFixed(2) : 0}',
                   style: TextStyle(
                     fontSize: 18.0,
                   ),

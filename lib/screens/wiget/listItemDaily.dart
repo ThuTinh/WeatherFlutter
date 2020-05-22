@@ -19,7 +19,7 @@ class ListItemDaily extends StatelessWidget {
         children: <Widget>[
           Text('${weather.dtTxt.day}/${weather.dtTxt.month}'),
           Image.network(
-              'http://openweathermap.org/img/wn/${ weather != null ?weather.weather[0].icon: "04n"}@2x.png'),
+              'http://openweathermap.org/img/wn/${weather != null ? weather.weather[0].icon : "04n"}@2x.png'),
           Row(
             children: <Widget>[
               BoxedIcon(
@@ -31,7 +31,8 @@ class ListItemDaily extends StatelessWidget {
               ),
               RichText(
                   text: TextSpan(
-                      text: '${weather.main.humidity}',
+                      text:
+                          '${weather.main.humidity != null ? weather.main.humidity : ""}',
                       style: TextStyle(
                         fontSize: 13.0,
                       ),
@@ -44,7 +45,7 @@ class ListItemDaily extends StatelessWidget {
           RichText(
               text: TextSpan(
                   text:
-                      '${weather != null ? (weather.main.tempMax - 273).toStringAsFixed(1) : 0}',
+                      '${weather != null ? (weather.main.tempMax - 273.15).toStringAsFixed(2) : 0}',
                   style: TextStyle(
                     fontSize: 18.0,
                   ),
@@ -53,7 +54,7 @@ class ListItemDaily extends StatelessWidget {
                 TextSpan(text: " / "),
                 TextSpan(
                   text:
-                      '${weather != null ? (weather.main.tempMin - 273).toStringAsFixed(1) : 0}',
+                      '${weather != null ? (weather.main.tempMin - 273.15).toStringAsFixed(2) : 0}',
                   style: TextStyle(
                     fontSize: 18.0,
                   ),

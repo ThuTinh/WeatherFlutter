@@ -34,17 +34,18 @@ class LocationState extends State<LocationWeather> {
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.max,
-               crossAxisAlignment: CrossAxisAlignment.center,
-             
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Container(
                     height: 40.0,
                     margin: const EdgeInsets.all(10),
                     child: TextField(
-                      style:  TextStyle(color: Colors.black),
-                      decoration: InputDecoration(border: OutlineInputBorder(),  hintText: 'Enter location'),
-                       autofocus: true,
-                       controller: myController,
+                      style: TextStyle(color: Colors.black),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter location'),
+                      autofocus: true,
+                      controller: myController,
                     ),
                   ),
                   RaisedButton(

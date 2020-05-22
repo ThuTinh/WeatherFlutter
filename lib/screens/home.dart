@@ -66,10 +66,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void onSelectAction(String choice) async {
     Route route = MaterialPageRoute(builder: (context) => LocationWeather());
     final result = await Navigator.push(context, route);
-    print("curent city1" + result);
     setState(() {
       curentCity = result;
-      print("curent city" + curentCity);
     });
     getData();
   }
@@ -117,7 +115,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 25.0)),
                           ),
-
                           RichText(
                               text: TextSpan(
                                   text:
@@ -135,17 +132,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              // BoxedIcon(
-                              //   WeatherIcons.day_cloudy,
-                              //   size: 60.0,
-                              //   color: Hexcolor("#FFD600"),
-                              // ),
                               Image.network(
                                   'http://openweathermap.org/img/wn/${weather != null ? weather.weather[0].icon : "04n"}@2x.png'),
                               RichText(
                                   text: TextSpan(
                                       text:
-                                          '${weather != null ? (weather.main.temp - 273).toStringAsFixed(1) : 0}',
+                                          '${weather != null ? (weather.main.temp - 273.15).toStringAsFixed(2) : 0}',
                                       style: TextStyle(fontSize: 50.0),
                                       children: [
                                     TextSpan(
@@ -160,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           RichText(
                               text: TextSpan(
                                   text:
-                                      '${weather != null ? (weather.main.tempMax - 273).toStringAsFixed(1) : 0}',
+                                      '${weather != null ? (weather.main.tempMax - 273.15).toStringAsFixed(2) : 0}',
                                   style: TextStyle(fontSize: 14.0),
                                   children: [
                                 TextSpan(
@@ -169,21 +161,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                 TextSpan(text: "/"),
                                 TextSpan(
                                     text:
-                                        '${weather != null ? (weather.main.tempMin - 273).toStringAsFixed(1) : 0}'),
+                                        '${weather != null ? (weather.main.tempMin - 273.15).toStringAsFixed(2) : 0}'),
                                 TextSpan(
                                   text: "°",
                                 ),
                                 TextSpan(text: " feel like "),
                                 TextSpan(
                                     text:
-                                        '${weather != null ? (weather.main.feelsLike - 273).toStringAsFixed(1) : 0}'),
+                                        '${weather != null ? (weather.main.feelsLike - 273.15).toStringAsFixed(2) : 0}'),
                                 TextSpan(
                                   text: "°",
                                 ),
                               ])),
-                          // SizedBox(
-                          //   height: 8.0,
-                          // ),
                           Text(
                               '${weather != null ? weather.weather[0].description : ""}',
                               style: TextStyle(
@@ -201,8 +190,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: BorderRadius.circular(20),
                           color: Hexcolor("#80D8FF")),
                       child: Row(
-                        // mainAxisSize: MainAxisSize.max,
-                        // mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           Expanded(
                             child: Column(
@@ -223,7 +210,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           "Humidity",
                                           style: TextStyle(fontSize: 18),
                                         ),
-                                        Text('${weather.main.humidity} %',
+                                        Text(
+                                            '${weather.main.humidity != null ? weather.main.humidity : ""} %',
                                             style: TextStyle(fontSize: 18))
                                       ],
                                     ),
@@ -276,8 +264,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       children: <Widget>[
                         Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Text("Hourly"),
+                          padding: const EdgeInsets.all(15),
+                          child: Text(
+                            "Hourly",
+                            style: TextStyle(fontSize: 18),
+                          ),
                         )
                       ],
                     ),
@@ -298,8 +289,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       children: <Widget>[
                         Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Text("Daily"),
+                          padding: const EdgeInsets.all(15),
+                          child: Text(
+                            "Daily",
+                            style: TextStyle(fontSize: 18),
+                          ),
                         )
                       ],
                     ),
@@ -334,17 +328,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: <Widget>[
                           ListTile(
                             title: Text("lat"),
-                            // leading: BoxedIcon(WeatherIcons.raindrop),
                             trailing: Text('${reponseWeather.city.coord.lat}'),
                           ),
                           ListTile(
                             title: Text("lon"),
-                            // leading: BoxedIcon(WeatherIcons.raindrop),
                             trailing: Text('${reponseWeather.city.coord.lon}'),
                           ),
                           ListTile(
                             title: Text("population"),
-                            // leading: BoxedIcon(WeatherIcons.raindrop),
                             trailing: Text('${reponseWeather.city.population}'),
                           ),
                         ],
